@@ -1,9 +1,9 @@
 {
     "name": "@zolyn/charon",
     "version": "1.0.0",
-    "description": "Utils",
+    "description": "A simple scaffoling tool.",
     "keywords": [
-        "utils"
+        "scaffolding"
     ],
     "homepage": "https://github.com/Zolyn/Charon#readme",
     "bugs": {
