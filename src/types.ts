@@ -1,11 +1,8 @@
-type Func = (...args: any[]) => any;
+export interface CharonOptions {
+    template: string;
+    dest?: string;
+    preserve?: boolean;
+    overwrite?: boolean;
+}
 
-type StringKeyObject = Record<string, any>;
-
-type StringObject = Record<string, string>;
-
-type StringKeyMap = Map<string, any>;
-
-type StringMap = Map<string, string>;
-
-export { Func, StringKeyObject, StringObject, StringKeyMap, StringMap };
+export type ResolvedCharonOptions = Required<CharonOptions>;

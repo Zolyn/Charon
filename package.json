@@ -1,58 +1,94 @@
 {
-    "name": "@zolyn/charon",
-    "version": "1.0.0",
-    "description": "A simple scaffoling tool.",
-    "keywords": [
-        "scaffolding"
-    ],
-    "homepage": "https://github.com/Zolyn/Charon#readme",
-    "bugs": {
-        "url": "https://github.com/Zolyn/Charon/issues"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/Zolyn/Charon.git"
-    },
-    "license": "MIT",
-    "author": "Yumeoto Zorin <zorin1477@gmail.com>",
-    "main": "index.js",
-    "files": [
-        "dist"
-    ],
-    "scripts": {
-        "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s && git add CHANGELOG.md",
-        "ensure": "git-ensure --no-behind -c",
-        "lint": "eslint \"./src/**/*.ts\"",
-        "lint:fix": "nr lint --fix",
-        "prepare": "husky install",
-        "release": "nr changelog && nr ensure && bumpp --commit --tag --push"
-    },
-    "config": {
-        "commitizen": {
-            "path": "@commitlint/cz-commitlint"
-        }
-    },
-    "devDependencies": {
-        "@antfu/ni": "^0.16.2",
-        "@commitlint/cli": "^17.0.2",
-        "@commitlint/config-conventional": "^17.0.2",
-        "@commitlint/cz-commitlint": "^17.0.0",
-        "@typescript-eslint/eslint-plugin": "^5.27.0",
-        "@typescript-eslint/parser": "^5.27.0",
-        "bumpp": "^7.1.1",
-        "commitizen": "^4.2.4",
-        "conventional-changelog-cli": "^2.2.2",
-        "conventional-github-releaser": "^3.1.5",
-        "eslint": "^8.17.0",
-        "eslint-config-alloy": "^4.5.1",
-        "eslint-config-prettier": "^8.5.0",
-        "eslint-plugin-prettier": "^4.0.0",
-        "git-ensure": "^0.1.0",
-        "husky": "^8.0.0",
-        "lint-staged": "^13.0.0",
-        "prettier": "^2.6.2",
-        "sort-package-json": "^1.57.0",
-        "tsup": "^6.0.1",
-        "typescript": "^4.7.3"
+  "name": "@zolyn/charon",
+  "version": "1.0.0",
+  "description": "A simple scaffolding tool.",
+  "keywords": [
+    "scaffolding"
+  ],
+  "homepage": "https://github.com/Zolyn/Charon#readme",
+  "bugs": {
+    "url": "https://github.com/Zolyn/Charon/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zolyn/Charon.git"
+  },
+  "license": "MIT",
+  "author": "Yumeoto Zorin <zorin1477@gmail.com>",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
     }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "charon": "./dist/cli.mjs"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "unbuild",
+    "changelog": "changelogithub -o CHANGELOG.md --contributors false --emoji false --out-only && git add CHANGELOG.md",
+    "commit": "cz",
+    "dev": "unbuild --stub",
+    "ensure": "git-ensure --no-behind -c",
+    "lint": "eslint \"./src/**/*.ts\"",
+    "lint:fix": "nr lint --fix",
+    "prepare": "husky install",
+    "prepublishOnly": "nr build",
+    "release": "nr ensure && nr changelog && bumpp --commit --tag --push",
+    "typecheck": "tsc --noEmit"
+  },
+  "config": {
+    "commitizen": {
+      "path": "@zolyn/cz-conventional-changelog"
+    }
+  },
+  "dependencies": {
+    "@zolyn/utils": "^1.0.1",
+    "cac": "^6.7.12",
+    "conf": "^10.1.2",
+    "defu": "^6.0.0",
+    "fs-extra": "^10.1.0",
+    "gitly": "^2.2.1",
+    "log-symbols": "^5.1.0",
+    "ora": "^6.1.2",
+    "picocolors": "^1.0.0",
+    "pkg-types": "^0.3.3",
+    "prompts": "^2.4.2",
+    "read-pkg": "^7.1.0",
+    "update-notifier": "^6.0.2",
+    "write-pkg": "^5.1.0"
+  },
+  "devDependencies": {
+    "@antfu/ni": "^0.16.3",
+    "@commitlint/cli": "^17.0.3",
+    "@commitlint/config-conventional": "^17.0.3",
+    "@types/fs-extra": "^9.0.13",
+    "@types/node": "^18.0.3",
+    "@types/prompts": "^2.0.14",
+    "@types/update-notifier": "^6.0.1",
+    "@zolyn/changelogithub": "^0.10.3",
+    "@zolyn/cz-conventional-changelog": "^1.0.1",
+    "@zolyn/eslint-config": "^1.1.0",
+    "bumpp": "^8.2.1",
+    "commitizen": "^4.2.4",
+    "eslint": "^8.19.0",
+    "git-ensure": "^0.1.0",
+    "husky": "^8.0.1",
+    "lint-staged": "^13.0.3",
+    "prettier": "^2.7.1",
+    "sort-package-json": "^1.57.0",
+    "tsx": "^3.7.1",
+    "typescript": "^4.7.4",
+    "unbuild": "^0.7.4"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }
