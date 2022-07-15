@@ -1,10 +1,6 @@
 # Changelog
 
-## [NEXT_VERSION](https://github.com/Zolyn/Charon/compare/...main) (2022-07-15)
-
-_No significant changes_
-
-## [NEXT_VERSION](https://github.com/Zolyn/Charon/compare/0f4877174064446a4bae8180bd6b8f8971fd4919...main) (2022-07-15)
+# [1.0.0](https://github.com/Zolyn/Charon/compare/0f4877174064446a4bae8180bd6b8f8971fd4919...v1.0.0) (2022-07-15)
 
 ### Features
 
