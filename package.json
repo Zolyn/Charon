@@ -28,7 +28,7 @@
   ],
   "scripts": {
     "build": "unbuild",
-    "changelog": "changelogithub -o CHANGELOG.md --contributors false --emoji false --out-only && git add CHANGELOG.md",
+    "changelog": "changelogithub -o CHANGELOG.md --contributors false --emoji false --out-only",
     "commit": "cz",
     "dev": "unbuild --stub",
     "ensure": "git-ensure --no-behind -c",
@@ -36,7 +36,7 @@
     "lint:fix": "nr lint --fix",
     "prepare": "husky install",
     "prepublishOnly": "nr build",
-    "release": "nr ensure && nr changelog && bumpp --commit --tag --push",
+    "release": "nr ensure && bumpp --commit --tag --push",
     "typecheck": "tsc --noEmit"
   },
   "config": {
