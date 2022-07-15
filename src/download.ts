@@ -1,5 +1,6 @@
-import { rename, rmdir } from 'node:fs/promises';
+import { rename } from 'node:fs/promises';
 import { copy } from 'fs-extra';
+import trash from 'trash';
 import debugFn from 'debug';
 import { ResolvedCharonOptions } from './types';
 import { checkIfEmptyDir } from './utils';
@@ -30,7 +31,7 @@ export async function downloadRepo(options: ResolvedCharonOptions) {
             await rename(dest, oldDir);
             await gitly(template, dest, {});
             await copy(oldDir, dest);
-            return rmdir(oldDir);
+            return trash(oldDir);
         } else {
             throw new Error(`The directory ${dest} is not empty. See 'charon -h' for more details.`);
         }
