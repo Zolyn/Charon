@@ -35,7 +35,7 @@ cli.command('')
     )
     .option('-n, --name [name]', 'Project name')
     .option('-a, --author [author]', 'Project author')
-    .option('--no-prompt', 'Do not prompt when options are not specified')
+    .option('-s, --skip', 'Skip prompts')
     // Aliases
     .option(
         '-p, --preserve',
@@ -67,7 +67,13 @@ cli.command('')
             args.mode = 'preserve';
         }
 
-        if (isTemplateEmpty && args.prompt) {
+        if (args.skip) {
+            if (!args.template) {
+                debug('Skip prompts, but "template" is empty');
+                console.error(logSymbols.error, red('Option "--template" requires value.'));
+                process.exit(1);
+            }
+        } else if (isTemplateEmpty) {
             if (templates.length) {
                 const { template, customTemplate } = await createPrompt([
                     {
@@ -98,7 +104,7 @@ cli.command('')
             }
         }
 
-        if (args.prompt) {
+        if (!args.skip) {
             args.name ??= await createPrompt({
                 name: 'name',
                 message: 'Specify a name of your project.',
@@ -108,10 +114,6 @@ cli.command('')
                 name: 'author',
                 message: 'Specify the author name of your project.',
             });
-        } else if (!args.template) {
-            debug('No prompt, but "template" is empty');
-            console.error(logSymbols.error, red('Option "--template" requires value.'));
-            process.exit(1);
         }
 
         const options = resolveOptions(args);
