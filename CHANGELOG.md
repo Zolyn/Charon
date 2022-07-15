@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.1](https://github.com/Zolyn/Charon/compare/v1.0.0...v1.0.1) (2022-07-15)
+
+### Bug Fixes
+
+-   Missing exports in entry file - [<samp>(5f896)</samp>](https://github.com/Zolyn/Charon/commit/5f896eb)
+
 # [1.0.0](https://github.com/Zolyn/Charon/compare/0f4877174064446a4bae8180bd6b8f8971fd4919...v1.0.0) (2022-07-15)
 
 ### Features
