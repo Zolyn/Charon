@@ -23,6 +23,7 @@ export async function downloadRepo(options: ResolvedCharonOptions) {
         if (mode === 'overwrite') {
             debug('Overwrite');
 
+            await trash(dest);
             return gitly(template, dest, {});
         } else if (mode === 'preserve') {
             debug('Preserve');
