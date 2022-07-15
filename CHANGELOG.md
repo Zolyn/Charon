@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.1](https://github.com/Zolyn/Charon/compare/v1.1.0...v1.1.1) (2022-07-15)
+
+### Features
+
+-   Move old directory to trash when using `overwrite` mode - [<samp>(7576d)</samp>](https://github.com/Zolyn/Charon/commit/7576d9c)
+
 # [1.1.0](https://github.com/Zolyn/Charon/compare/v1.0.1...v1.1.0) (2022-07-15)
 
 ### Breaking Changes
