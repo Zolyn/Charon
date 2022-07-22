@@ -28,7 +28,7 @@
   ],
   "scripts": {
     "build": "unbuild",
-    "changelog": "changelogithub -o CHANGELOG.md --contributors false --emoji false --out-only",
+    "changelog": "changelogithub -o CHANGELOG.md --contributors false --emoji false",
     "commit": "cz",
     "dev": "unbuild --stub",
     "ensure": "git-ensure --no-behind -c",
