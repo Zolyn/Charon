@@ -1,5 +1,11 @@
 # Changelog
 
+## [NEXT_VERSION](https://github.com/Zolyn/Charon/compare/v1.1.1...main) (2022-07-23)
+
+### Breaking Changes
+
+-   Move `-t` to default argument, add new command `templates`, add command aliases - [<samp>(fa8f1)</samp>](https://github.com/Zolyn/Charon/commit/fa8f114)
+
 ## [1.1.1](https://github.com/Zolyn/Charon/compare/v1.1.0...v1.1.1) (2022-07-15)
 
 ### Features
