@@ -6,7 +6,6 @@ specifiers:
   '@commitlint/config-conventional': ^17.0.3
   '@types/debug': ^4.1.7
   '@types/fs-extra': ^9.0.13
-  '@types/inquirer': ^8.2.1
   '@types/node': ^18.0.4
   '@types/prompts': ^2.0.14
   '@types/update-notifier': ^6.0.1
@@ -68,7 +67,6 @@ devDependencies:
   '@commitlint/config-conventional': 17.0.3
   '@types/debug': 4.1.7
   '@types/fs-extra': 9.0.13
-  '@types/inquirer': 8.2.1
   '@types/node': 18.0.4
   '@types/prompts': 2.0.14
   '@types/update-notifier': 6.0.1
@@ -802,13 +800,6 @@ packages:
     resolution: {integrity: sha512-SZs7ekbP8CN0txVG2xVRH6EgKmEm31BOxA07vkFaETzZz1xh+cbt8BcI0slpymvwhx5dlFnQG2rTlPVQn+iRPQ==}
     dev: false
 
-  /@types/inquirer/8.2.1:
-    resolution: {integrity: sha512-wKW3SKIUMmltbykg4I5JzCVzUhkuD9trD6efAmYgN2MrSntY0SMRQzEnD3mkyJ/rv9NLbTC7g3hKKE86YwEDLw==}
-    dependencies:
-      '@types/through': 0.0.30
-      rxjs: 7.5.6
-    dev: true
-
   /@types/json-buffer/3.0.0:
     resolution: {integrity: sha512-3YP80IxxFJB4b5tYC2SUPwkg0XQLiu0nWvhRgEatgjf+29IcWO9X1k8xRv5DGssJ/lCrjYTjQPcobJr2yWIVuQ==}
     dev: false
@@ -866,12 +857,6 @@ packages:
     dependencies:
       '@types/node': 18.0.4
     dev: false
-
-  /@types/through/0.0.30:
-    resolution: {integrity: sha512-FvnCJljyxhPM3gkRgWmxmDZyAQSiBQQWLI0A0VFL0K7W1oRUrPJSqNO0NvTnLkBcotdlp3lKvaT0JrnyRDkzOg==}
-    dependencies:
-      '@types/node': 18.0.4
-    dev: true
 
   /@types/update-notifier/6.0.1:
     resolution: {integrity: sha512-J6x9qtPDKgJGLdTjiswhhiL5QJoZv7eQb44t90mWb4Cf3tnuDRMvg8je9PoxDJZiGog0bfoFVcVHBq4RcItRZg==}

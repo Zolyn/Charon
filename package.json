@@ -70,7 +70,6 @@
     "@commitlint/config-conventional": "^17.0.3",
     "@types/debug": "^4.1.7",
     "@types/fs-extra": "^9.0.13",
-    "@types/inquirer": "^8.2.1",
     "@types/node": "^18.0.4",
     "@types/prompts": "^2.0.14",
     "@types/update-notifier": "^6.0.1",
