@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-param-reassign */
 import { wrapPromise } from '@zolyn/utils';
 import { cac } from 'cac';
 import debugFn from 'debug';
@@ -10,7 +11,8 @@ import updateNotifier from 'update-notifier';
 import { downloadRepo } from './download';
 import { resolveOptions } from './options';
 import { replacePkgContent } from './pkg';
-import { createPrompt, getConf, getLocalPkg, getOrSetValue } from './utils';
+import { ConfigKeys, Validator } from './types';
+import { checkInvalidTypes, createPrompt, getConf, getLocalPkg, getOrSetValue } from './utils';
 
 const { red, green } = picocolors;
 
@@ -26,25 +28,27 @@ const cli = cac('charon');
 
 cli.version(localPkg.version).help();
 
-cli.command('')
-    .option('-t, --template [repo]', 'Template repository')
+cli.command('[template]', 'Template repository')
     .option('-d, --dest <path>', 'Destination')
     .option(
         '-m, --mode <mode>',
-        'Mode for extracting git repository. Available options: "normal" | "preserve" | "overwrite" (Default: "normal)"',
+        'Mode for extracting git repositories. Available options: "normal" | "preserve" | "overwrite" (Default: "normal)"',
     )
     .option('-n, --name [name]', 'Project name')
     .option('-a, --author [author]', 'Project author')
     .option('-s, --skip', 'Skip prompts')
+    .option('-g, --git', '[WIP] Initialize a git repository after downloading template. (Default: false)')
     // Aliases
     .option(
         '-p, --preserve',
         'Preserve the files if the destination is not empty. Same as "-m preserve" (High priority when use with "-o")',
     )
     .option('-o, --overwrite', 'Overwrite the files if the destination is not empty. Same as "-m overwrite"')
-    .action(async args => {
+    .action(async (template, args) => {
+        debug('Template: "%s"', template);
         debug('Args %O', args);
-        const isTemplateEmpty = ['boolean', 'undefined'].includes(typeof args.template);
+
+        checkInvalidTypes(args, ['number', 'object']);
 
         const conf = getConf();
         debug('Conf %O', conf.store);
@@ -52,6 +56,7 @@ cli.command('')
         const templates = conf.get('templates', []) as string[];
         args.author ??= conf.get('author');
         args.mode ??= conf.get('mode');
+        args.skip ??= conf.get('skip');
 
         if (args.mode && !['normal', 'preserve', 'overwrite'].includes(args.mode)) {
             debug('Invalid mode "%s"', args.mode);
@@ -68,43 +73,43 @@ cli.command('')
         }
 
         if (args.skip) {
-            if (!args.template) {
+            if (!template) {
                 debug('Skip prompts, but "template" is empty');
                 console.error(logSymbols.error, red('Option "--template" requires value.'));
                 process.exit(1);
             }
-        } else if (isTemplateEmpty) {
-            if (templates.length) {
-                const { template, customTemplate } = await createPrompt([
-                    {
-                        name: 'template',
-                        type: 'autocomplete',
-                        message: 'Choose a template to init.',
-                        promptOptions: {
-                            suggest: (input, choices) =>
-                                Promise.resolve(choices.filter(choice => fuzzy.test(input, choice.title))),
-                            choices: [...templates.map(t => ({ title: t })), { title: 'Custom' }],
+        } else {
+            if (!template) {
+                if (templates.length) {
+                    const { template: _template, customTemplate } = await createPrompt([
+                        {
+                            name: 'template',
+                            type: 'autocomplete',
+                            message: 'Choose a template to init.',
+                            promptOptions: {
+                                suggest: (input, choices) =>
+                                    Promise.resolve(choices.filter(choice => fuzzy.test(input, choice.title))),
+                                choices: [...templates.map(t => ({ title: t })), { title: 'Custom' }],
+                            },
                         },
-                    },
-                    {
-                        name: 'customTemplate',
-                        when: prev => prev === 'Custom',
-                        message: 'Please type a template to init.',
+                        {
+                            name: 'customTemplate',
+                            when: prev => prev === 'Custom',
+                            message: 'Please specify a template to init.',
+                            required: true,
+                        },
+                    ]);
+
+                    template = customTemplate || _template;
+                } else {
+                    template = await createPrompt({
+                        name: 'template',
+                        message: 'Please specify a template to init',
                         required: true,
-                    },
-                ]);
-
-                args.template = customTemplate || template;
-            } else {
-                args.template = await createPrompt({
-                    name: 'template',
-                    message: 'Please type a template to init',
-                    required: true,
-                });
+                    });
+                }
             }
-        }
 
-        if (!args.skip) {
             args.name ??= await createPrompt({
                 name: 'name',
                 message: 'Specify a name of your project.',
@@ -121,7 +126,7 @@ cli.command('')
 
         templates.push(options.template);
 
-        const downloadSpinner = ora('Downloading repo').start();
+        const downloadSpinner = ora('Downloading template').start();
         const [downloadErr] = await wrapPromise(downloadRepo(options));
 
         if (downloadErr) {
@@ -151,13 +156,22 @@ cli.command('')
         console.log(logSymbols.success, green('Done.'));
     });
 
+/**
+ * We temporarily use options to edit config since CAC does not support subcommands.
+ */
 cli.command('config', 'Edit config')
-    .option('--author [name]', 'Get or set the author name')
-    .option('--mode [mode]', 'Get or set the mode for extracting git repositories')
-    .option('--prompt [switch]', 'Get or set the behavior of prompting')
-    .option('-c, --clear [scope]', 'Leave the value to clear config. Or use "-c templates" to clear used templates')
+    .alias('c')
+    .alias('co')
+    .option('--author [name]', 'Project author')
+    .option('--mode [mode]', 'Mode for extracting git repositories')
+    .option('--skip [switch]', 'Whether to skip prompts')
+    .option('--git', 'Whether to initialize a git repository after downloading template')
+    .option('-c, --clear', 'Clear config')
     .action(args => {
         const debugConfig = debug.extend('config');
+        debugConfig('ConfigArgs %O', args);
+
+        checkInvalidTypes(args, ['number', 'object']);
 
         const argsLength = Object.keys(args).length;
 
@@ -169,49 +183,148 @@ cli.command('config', 'Edit config')
         const conf = getConf();
 
         if (args.clear) {
-            if (typeof args.clear === 'boolean') {
-                debugConfig('Clear config');
+            debugConfig('Clear config');
 
-                ['author', 'mode', 'prompt'].forEach(key => conf.delete(key));
+            const configKeys: ConfigKeys[] = ['author', 'mode', 'skip', 'git'];
+            configKeys.forEach(key => conf.delete(key));
 
-                console.log(logSymbols.success, green('Done.'));
-                return;
-            } else if (args.clear === 'templates') {
-                debugConfig('Clear templates');
-
-                conf.delete('templates');
-
-                console.log(logSymbols.success, green('Done.'));
-                return;
-            } else {
-                debug('Invalid scope "%s"', args.clear);
-                console.error(logSymbols.error, red(`Invalid scope "${args.clear}". See "-h" for available options.`));
-                process.exit(1);
-            }
+            console.log(logSymbols.success, green('Done.'));
         }
 
-        debugConfig('Get or set "author" if specified');
-        getOrSetValue({
-            conf,
-            key: 'author',
-            value: args.author,
-        });
+        const booleanValidator: Validator = val => ['true', 'false'].includes(val);
 
-        debugConfig('Get or set "mode" if specified');
-        getOrSetValue({
-            conf,
-            key: 'mode',
-            value: args.mode,
-            validator: val => ['normal', 'preserve', 'overwrite'].includes(val),
-        });
+        const argsMap: Record<ConfigKeys, Validator | null> = {
+            author: null,
+            mode: val => ['normal', 'preserve', 'overwrite'].includes(val),
+            skip: booleanValidator,
+            git: booleanValidator,
+        };
 
-        debugConfig('Get or set "prompt" if specified');
-        getOrSetValue({
-            conf,
-            key: 'prompt',
-            value: args.prompt,
-            validator: val => ['true', 'false'].includes(val),
+        Object.entries(argsMap).forEach(([k, v]) => {
+            debugConfig('Get or set "%s" if specified', k);
+            getOrSetValue({
+                conf,
+                key: k,
+                value: args[k],
+                validator: v,
+            });
         });
+    });
+
+cli.command('templates', 'Edit templates')
+    .alias('t')
+    .alias('te')
+    .option('-a, --add [template]', 'Add a template')
+    .option('-d, --del [template]', 'Delete a template')
+    .option('-l, --list', 'List all templates')
+    .option('-c, --clear', 'Clear all templates')
+    .action(async args => {
+        const debugTemplates = debug.extend('templates');
+        debugTemplates('TemplateArgs %O', args);
+
+        checkInvalidTypes(args, ['number', 'object']);
+
+        const argsLength = Object.keys(args).length;
+
+        if (argsLength === 1) {
+            cli.outputHelp();
+            return;
+        }
+
+        const conf = getConf();
+        const templates = new Set(conf.get('templates') as string[] | undefined);
+
+        if (args.list) {
+            if (templates.size) {
+                console.log(logSymbols.info, [...templates]);
+            } else {
+                debugTemplates('Template is empty. No templates to list');
+                console.error(logSymbols.error, 'No templates to list.');
+            }
+
+            return;
+        }
+
+        if (args.clear) {
+            debugTemplates('Clear templates');
+
+            conf.delete('templates');
+            console.log(logSymbols.success, green('Done.'));
+            return;
+        }
+
+        if (typeof args.add === 'boolean') {
+            args.add = await createPrompt({
+                name: 'template',
+                message: 'Specify a template',
+            });
+
+            debugTemplates('Arg "add" after prompt: %s', args.add);
+        }
+
+        if (args.add) {
+            templates.add(args.add);
+            conf.set('templates', [...templates]);
+
+            debugTemplates('Added template "%s"', args.add);
+            console.log(logSymbols.success, green('Done.'));
+            return;
+        }
+        // Empty string
+        else if (typeof args.add === 'string') {
+            debugTemplates('Template not specified');
+            console.error(logSymbols.error, 'Template not specified.');
+            return;
+        }
+
+        if (args.del && !templates.size) {
+            debugTemplates('Template is empty. No templates to delete');
+            console.error(logSymbols.error, 'No templates to delete.');
+            return;
+        }
+
+        if (typeof args.del === 'boolean') {
+            args.del = await createPrompt({
+                type: 'autocompleteMultiselect',
+                name: 'delTemplates',
+                message: 'Select templates to delete',
+                promptOptions: {
+                    suggest(input, choices) {
+                        return Promise.resolve(choices.filter(choice => fuzzy.test(input, choice.title)));
+                    },
+                    choices: [...templates].map(t => ({ title: t, value: t })),
+                    hint: 'Space to select. Return to submit',
+                    instructions: false,
+                },
+            });
+
+            debugTemplates('Arg "del" after prompt: %s', args.del);
+        }
+
+        if (Array.isArray(args.del) && args.del.length) {
+            args.del.forEach((val: string) => {
+                templates.delete(val);
+                debugTemplates('Template "%s" was deleted', val);
+            });
+
+            conf.set('templates', [...templates]);
+
+            console.log(logSymbols.success, green('Done.'));
+        } else if (typeof args.del === 'string') {
+            if (templates.delete(args.del)) {
+                conf.set('templates', [...templates]);
+
+                debugTemplates('Template "%s" was deleted', args.del);
+                console.log(logSymbols.success, green('Done.'));
+                return;
+            }
+
+            debugTemplates('Template "%s" not found', args.del);
+            console.error(logSymbols.error, 'Template not found.');
+        } else {
+            debugTemplates('Template not specified');
+            console.error(logSymbols.error, 'Template not specified.');
+        }
     });
 
 cli.parse();
