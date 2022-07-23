@@ -9,10 +9,19 @@ import ora from 'ora';
 import picocolors from 'picocolors';
 import updateNotifier from 'update-notifier';
 import { downloadRepo } from './download';
+import { initGitRepo } from './git';
 import { resolveOptions } from './options';
 import { replacePkgContent } from './pkg';
 import { ConfigKeys, Validator } from './types';
-import { checkInvalidTypes, createPrompt, getConf, getLocalPkg, getOrSetValue } from './utils';
+import {
+    BooleanValidator,
+    checkInvalidTypes,
+    configKeys,
+    createPrompt,
+    getConf,
+    getLocalPkg,
+    getOrSetValue,
+} from './utils';
 
 const { red, green } = picocolors;
 
@@ -37,7 +46,7 @@ cli.command('[template]', 'Template repository')
     .option('-n, --name [name]', 'Project name')
     .option('-a, --author [author]', 'Project author')
     .option('-s, --skip', 'Skip prompts')
-    .option('-g, --git', '[WIP] Initialize a git repository after downloading template. (Default: false)')
+    .option('-g, --git', 'Initialize a git repository after downloading template. (Default: false)')
     // Aliases
     .option(
         '-p, --preserve',
@@ -54,9 +63,13 @@ cli.command('[template]', 'Template repository')
         debug('Conf %O', conf.store);
 
         const templates = conf.get('templates', []) as string[];
-        args.author ??= conf.get('author');
-        args.mode ??= conf.get('mode');
-        args.skip ??= conf.get('skip');
+        args.template = template;
+
+        configKeys.forEach(k => {
+            args[k] ??= conf.get(k);
+        });
+
+        debug('MergedArgs %O', args);
 
         if (args.mode && !['normal', 'preserve', 'overwrite'].includes(args.mode)) {
             debug('Invalid mode "%s"', args.mode);
@@ -100,9 +113,9 @@ cli.command('[template]', 'Template repository')
                         },
                     ]);
 
-                    template = customTemplate || _template;
+                    args.template = customTemplate || _template;
                 } else {
-                    template = await createPrompt({
+                    args.template = await createPrompt({
                         name: 'template',
                         message: 'Please specify a template to init',
                         required: true,
@@ -138,21 +151,32 @@ cli.command('[template]', 'Template repository')
         downloadSpinner.succeed();
         conf.set('templates', [...new Set(templates)]);
 
-        if (!(options.name || options.author)) {
-            console.log(logSymbols.success, green('Done.'));
-            return;
+        if (options.git) {
+            const gitSpinner = ora('Initializing git repository').start();
+            const [gitInitErr, result] = await wrapPromise(initGitRepo(options.dest));
+
+            if (gitInitErr) {
+                gitSpinner.fail('Failed');
+                console.error(red(String(gitInitErr)));
+                process.exit(1);
+            }
+
+            gitSpinner.succeed(result ? undefined : 'There is already a git repository, skipping');
         }
 
-        const pkgSpinner = ora('Writing package.json').start();
-        const [writePkgErr] = await wrapPromise(replacePkgContent(options));
+        if (options.name || options.author) {
+            const pkgSpinner = ora('Writing package.json').start();
+            const [writePkgErr] = await wrapPromise(replacePkgContent(options));
 
-        if (writePkgErr) {
-            pkgSpinner.fail('Failed');
-            console.error(red(String(writePkgErr)));
-            process.exit(1);
+            if (writePkgErr) {
+                pkgSpinner.fail('Failed');
+                console.error(red(String(writePkgErr)));
+                process.exit(1);
+            }
+
+            pkgSpinner.succeed();
         }
 
-        pkgSpinner.succeed();
         console.log(logSymbols.success, green('Done.'));
     });
 
@@ -165,7 +189,7 @@ cli.command('config', 'Edit config')
     .option('--author [name]', 'Project author')
     .option('--mode [mode]', 'Mode for extracting git repositories')
     .option('--skip [switch]', 'Whether to skip prompts')
-    .option('--git', 'Whether to initialize a git repository after downloading template')
+    .option('--git [switch]', 'Whether to initialize a git repository after downloading template')
     .option('-c, --clear', 'Clear config')
     .action(args => {
         const debugConfig = debug.extend('config');
@@ -185,19 +209,16 @@ cli.command('config', 'Edit config')
         if (args.clear) {
             debugConfig('Clear config');
 
-            const configKeys: ConfigKeys[] = ['author', 'mode', 'skip', 'git'];
             configKeys.forEach(key => conf.delete(key));
 
             console.log(logSymbols.success, green('Done.'));
         }
 
-        const booleanValidator: Validator = val => ['true', 'false'].includes(val);
-
         const argsMap: Record<ConfigKeys, Validator | null> = {
             author: null,
             mode: val => ['normal', 'preserve', 'overwrite'].includes(val),
-            skip: booleanValidator,
-            git: booleanValidator,
+            skip: BooleanValidator,
+            git: BooleanValidator,
         };
 
         Object.entries(argsMap).forEach(([k, v]) => {

@@ -6,7 +6,9 @@ import { readdir } from 'node:fs/promises';
 import colors from 'picocolors';
 import prompts, { PromptObject } from 'prompts';
 import localPkg from '../package.json';
-import { CreatePromptOptions, GetOrSetValueOptions } from './types';
+import { ConfigKeys, CreatePromptOptions, GetOrSetValueOptions, Validator } from './types';
+
+export const configKeys: ConfigKeys[] = ['author', 'mode', 'skip', 'git'];
 
 export function createUtilsDebugger(name: string) {
     return debugFn(`Charon:utils:${name}`);
@@ -63,7 +65,7 @@ export async function createPrompt<R = any, T extends string = string>(
                       return null;
                   }
                 : type,
-            message: required ? message : `${message} (Enter to skip)`,
+            message: required ? message : `${message}${type === 'text' ? ' (Enter to skip)' : ''}`,
             validate: required ? (v: any) => !!v || 'Error: Requires value.' : undefined,
         }) as PromptObject<T>;
     });
@@ -86,8 +88,11 @@ export function getConf(): Conf {
     return new Conf({ projectName: name, projectVersion: version });
 }
 
+export const BooleanValidator: Validator = val => ['true', 'false'].includes(val);
+
 export function getOrSetValue(options: GetOrSetValueOptions) {
     const debug = createUtilsDebugger(getOrSetValue.name);
+
     const { conf, key, value, validator } = options;
     const isGet = typeof value === 'boolean';
     const isSet = typeof value === 'string';
@@ -96,7 +101,7 @@ export function getOrSetValue(options: GetOrSetValueOptions) {
         debug('Get "%s"', key);
 
         const val = conf.get(key);
-        if (val) {
+        if (typeof val !== 'undefined') {
             console.log(logSymbols.info, val);
             process.exit(0);
         }
@@ -113,9 +118,25 @@ export function getOrSetValue(options: GetOrSetValueOptions) {
             process.exit(1);
         }
 
-        conf.set(key, value);
+        conf.set(key, validator === BooleanValidator ? value === 'true' : value);
         console.log(logSymbols.info, value);
         console.log(logSymbols.success, colors.green('Done.'));
         process.exit(0);
     }
+}
+
+/**
+ * We temporarily use this function to validate arguments because CAC is weak at verifying types of arguments
+ * Currently we can't find a way to make an option accepts only one value directly.
+ * Also we don't know how to get CAC to treat numbers as strings. (This is useful in some scenarios.)
+ */
+export function checkInvalidTypes(obj: object, types: string[]) {
+    const debug = createUtilsDebugger(checkInvalidTypes.name);
+
+    Object.entries(obj).forEach(([k, v]) => {
+        if (k !== '--' && types.includes(typeof v)) {
+            debug('Invalid value "%O" for option "%s"', v, k);
+            throw new Error(`Invalid value for option ${k}`);
+        }
+    });
 }

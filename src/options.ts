@@ -6,6 +6,7 @@ export function resolveOptions(options: CharonOptions): ResolvedCharonOptions {
     const defaultOptions: DefaultCharonOptions = {
         dest: basename(options.template),
         mode: 'normal',
+        git: false,
     };
 
     return defu(options, defaultOptions) as ResolvedCharonOptions;

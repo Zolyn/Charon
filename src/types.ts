@@ -9,6 +9,7 @@ export interface CharonOptions extends Partial<Record<KeysWithoutDefaults, strin
     template: string;
     dest?: string;
     mode?: ExtractMode;
+    git?: boolean;
 }
 
 export type DefaultCharonOptions = Required<Omit<CharonOptions, 'template' | KeysWithoutDefaults>>;
@@ -24,9 +25,13 @@ export interface CreatePromptOptions<T extends string = string> {
     promptOptions?: Partial<PromptObject>;
 }
 
+export type Validator = (val: any) => boolean;
+
 export interface GetOrSetValueOptions {
     conf: Conf;
     key: string;
     value: any;
-    validator?: (val: any) => boolean;
+    validator?: Validator | null;
 }
+
+export type ConfigKeys = 'author' | 'mode' | 'skip' | 'git';
