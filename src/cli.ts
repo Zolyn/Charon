@@ -9,15 +9,16 @@ import ora from 'ora';
 import picocolors from 'picocolors';
 import updateNotifier from 'update-notifier';
 import { downloadRepo } from './download';
-import { initGitRepo } from './git';
+import { initGitRepo, parseGitUser } from './git';
 import { resolveOptions } from './options';
 import { replacePkgContent } from './pkg';
-import { ConfigKeys, Validator } from './types';
+import { Validator } from './types';
 import {
     BooleanValidator,
     checkInvalidTypes,
     configKeys,
     createPrompt,
+    ConfigKeys,
     getConf,
     getLocalPkg,
     getOrSetValue,
@@ -45,6 +46,7 @@ cli.command('[template]', 'Template repository')
     )
     .option('-n, --name [name]', 'Project name')
     .option('-a, --author [author]', 'Project author')
+    .option('-u, --user [user]', 'Your username on the code hosting service platform')
     .option('-s, --skip', 'Skip prompts')
     .option('-g, --git', 'Initialize a git repository after downloading template. (Default: false)')
     // Aliases
@@ -187,6 +189,7 @@ cli.command('config', 'Edit config')
     .alias('c')
     .alias('co')
     .option('--author [name]', 'Project author')
+    .option('--user [user]', 'Your username on the code hosting service platform')
     .option('--mode [mode]', 'Mode for extracting git repositories')
     .option('--skip [switch]', 'Whether to skip prompts')
     .option('--git [switch]', 'Whether to initialize a git repository after downloading template')
@@ -216,7 +219,17 @@ cli.command('config', 'Edit config')
 
         const argsMap: Record<ConfigKeys, Validator | null> = {
             author: null,
-            mode: val => ['normal', 'preserve', 'overwrite'].includes(val),
+            user: (val: string) => {
+                let result = true;
+                try {
+                    parseGitUser(val);
+                } catch {
+                    result = false;
+                }
+
+                return result;
+            },
+            mode: (val: string) => ['normal', 'preserve', 'overwrite'].includes(val),
             skip: BooleanValidator,
             git: BooleanValidator,
         };

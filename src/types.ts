@@ -3,7 +3,7 @@ import { PromptObject, PromptType } from 'prompts';
 
 export type ExtractMode = 'normal' | 'preserve' | 'overwrite';
 
-export type KeysWithoutDefaults = 'name' | 'author';
+export type KeysWithoutDefaults = 'name' | 'author' | 'user';
 
 export interface CharonOptions extends Partial<Record<KeysWithoutDefaults, string>> {
     template: string;
@@ -27,6 +27,7 @@ export interface CreatePromptOptions<T extends string = string> {
 
 export type Validator = (val: any) => boolean;
 
+// ? Maybe we should add a property "filter"
 export interface GetOrSetValueOptions {
     conf: Conf;
     key: string;
@@ -34,4 +35,7 @@ export interface GetOrSetValueOptions {
     validator?: Validator | null;
 }
 
-export type ConfigKeys = 'author' | 'mode' | 'skip' | 'git';
+export interface GitUserInfo {
+    host: string;
+    user: string;
+}

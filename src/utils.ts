@@ -6,9 +6,11 @@ import { readdir } from 'node:fs/promises';
 import colors from 'picocolors';
 import prompts, { PromptObject } from 'prompts';
 import localPkg from '../package.json';
-import { ConfigKeys, CreatePromptOptions, GetOrSetValueOptions, Validator } from './types';
+import { CreatePromptOptions, GetOrSetValueOptions, Validator } from './types';
 
-export const configKeys: ConfigKeys[] = ['author', 'mode', 'skip', 'git'];
+export const configKeys = ['author', 'mode', 'skip', 'git', 'user'] as const;
+
+export type ConfigKeys = typeof configKeys[number];
 
 export function createUtilsDebugger(name: string) {
     return debugFn(`Charon:utils:${name}`);
