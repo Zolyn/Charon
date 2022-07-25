@@ -1,5 +1,11 @@
 # Changelog
 
+# [1.3.0](https://github.com/Zolyn/Charon/compare/v1.2.0...v1.3.0) (2022-07-25)
+
+### Features
+
+- Support writing repository info in package.json (new option `user`) - [<samp>(a1aa5)</samp>](https://github.com/Zolyn/Charon/commit/a1aa586)
+
 # [1.2.0](https://github.com/Zolyn/Charon/compare/v1.1.1...v1.2.0) (2022-07-23)
 
 ### Breaking Changes
