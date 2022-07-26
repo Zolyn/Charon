@@ -120,8 +120,10 @@ export function getOrSetValue(options: GetOrSetValueOptions) {
             process.exit(1);
         }
 
-        conf.set(key, validator === BooleanValidator ? value === 'true' : value);
-        console.log(logSymbols.info, value);
+        const filteredValue = options.filter ? options.filter(value) : value;
+
+        conf.set(key, validator === BooleanValidator ? filteredValue === 'true' : filteredValue);
+        console.log(logSymbols.info, filteredValue);
         console.log(logSymbols.success, colors.green('Done.'));
         process.exit(0);
     }

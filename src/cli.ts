@@ -12,7 +12,7 @@ import { downloadRepo } from './download';
 import { initGitRepo, parseGitUser } from './git';
 import { resolveOptions } from './options';
 import { replacePkgContent } from './pkg';
-import { Validator } from './types';
+import { GetOrSetValueOptions, Validator } from './types';
 import {
     BooleanValidator,
     checkInvalidTypes,
@@ -217,21 +217,34 @@ cli.command('config', 'Edit config')
             console.log(logSymbols.success, green('Done.'));
         }
 
-        const argsMap: Record<ConfigKeys, Validator | null> = {
+        const argsMap: Record<ConfigKeys, Pick<GetOrSetValueOptions, 'validator' | 'filter'> | null> = {
             author: null,
-            user: (val: string) => {
-                let result = true;
-                try {
-                    parseGitUser(val);
-                } catch {
-                    result = false;
-                }
+            user: {
+                validator: (val: string) => {
+                    let result = true;
+                    try {
+                        parseGitUser(val);
+                    } catch {
+                        result = false;
+                    }
 
-                return result;
+                    return result;
+                },
+                filter: (val: string) => {
+                    const gitUserInfo = parseGitUser(val);
+
+                    return `${gitUserInfo.host}/${gitUserInfo.user}`;
+                },
             },
-            mode: (val: string) => ['normal', 'preserve', 'overwrite'].includes(val),
-            skip: BooleanValidator,
-            git: BooleanValidator,
+            mode: {
+                validator: (val: string) => ['normal', 'preserve', 'overwrite'].includes(val),
+            },
+            skip: {
+                validator: BooleanValidator,
+            },
+            git: {
+                validator: BooleanValidator,
+            },
         };
 
         Object.entries(argsMap).forEach(([k, v]) => {
@@ -240,7 +253,8 @@ cli.command('config', 'Edit config')
                 conf,
                 key: k,
                 value: args[k],
-                validator: v,
+                validator: v?.validator,
+                filter: v?.filter,
             });
         });
     });

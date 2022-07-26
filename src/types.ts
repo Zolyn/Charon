@@ -27,12 +27,14 @@ export interface CreatePromptOptions<T extends string = string> {
 
 export type Validator = (val: any) => boolean;
 
-// ? Maybe we should add a property "filter"
+export type Filter = (val: any) => any;
+
 export interface GetOrSetValueOptions {
     conf: Conf;
     key: string;
     value: any;
     validator?: Validator | null;
+    filter?: Filter | null;
 }
 
 export interface GitUserInfo {
