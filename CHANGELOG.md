@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.3.1](https://github.com/Zolyn/Charon/compare/v1.3.0...v1.3.1) (2022-07-26)
+
+### Features
+
+- Filter value when editing config - [<samp>(0d540)</samp>](https://github.com/Zolyn/Charon/commit/0d54009)
+
 # [1.3.0](https://github.com/Zolyn/Charon/compare/v1.2.0...v1.3.0) (2022-07-25)
 
 ### Features
