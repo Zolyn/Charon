@@ -24,10 +24,18 @@ pnpm add -g @zolyn/charon
 
 Initialize project with the given template
 
-#### Usage
+### Usage
 
 ```bash
-charon [template]
+charon [template] [options]
+```
+
+### Examples
+
+Initialize a project with template `Zolyn/ts-starter`
+
+```bash
+charon Zolyn/ts-starter
 ```
 
 ### Options
@@ -53,6 +61,12 @@ Aliases: `c`, `co`
 Get/set config value
 
 ### Usage
+
+```bash
+charon config [options]
+```
+
+### Examples
 
 Get config value
 
@@ -89,6 +103,12 @@ Edit templates
 
 ### Usage
 
+```bash
+charon templates [options]
+```
+
+### Examples
+
 Add template
 
 ```bash
@@ -120,7 +140,7 @@ List templates
 
 ## FAQ
 
-**Q1: How can I get my original directory back ?**
+**Q1: How can I get my "deleted" directory back ?**
 
 **A1:**
 In `preserve` and `overwrite` mode, Charon moves old directories to the trash rather than deleting them directly, so you can find them in the trash.
