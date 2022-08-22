@@ -44,10 +44,10 @@ cli.command('[template]', 'Template repository')
         '-m, --mode <mode>',
         'Mode for extracting git repositories. Available options: "normal" | "preserve" | "overwrite" (Default: "normal)"',
     )
-    .option('-n, --name [name]', 'Project name')
-    .option('-a, --author [author]', 'Project author')
-    .option('-u, --user [user]', 'Your username on the code hosting service platform')
-    .option('-s, --skip', 'Skip prompts')
+    .option('-n, --name <name>', 'Project name')
+    .option('-a, --author <author>', 'Project author')
+    .option('-u, --user <user>', 'Your username on the code hosting service platform')
+    .option('-s, --skip', 'Skip prompts (Default: false)')
     .option('-g, --git', 'Initialize a git repository after downloading template. (Default: false)')
     // Aliases
     .option(
