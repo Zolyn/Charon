@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.3.2](https://github.com/Zolyn/Charon/compare/v1.3.1...v1.3.2) (2022-08-22)
+
+### Bug Fixes
+
+- Incorrect cli flag - [<samp>(23844)</samp>](https://github.com/Zolyn/Charon/commit/2384475)
+
 ## [1.3.1](https://github.com/Zolyn/Charon/compare/v1.3.0...v1.3.1) (2022-07-26)
 
 ### Features
