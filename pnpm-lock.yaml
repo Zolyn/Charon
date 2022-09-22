@@ -36,7 +36,7 @@ specifiers:
   sort-package-json: ^1.57.0
   trash: ^8.1.0
   tsx: ^3.8.0
-  type-fest: ^2.17.0
+  type-fest: ^3.0.0
   typescript: ^4.7.4
   unbuild: ^0.8.0
   update-notifier: ^6.0.2
@@ -59,7 +59,7 @@ dependencies:
   read-pkg: 7.1.0
   sort-package-json: 1.57.0
   trash: 8.1.0
-  type-fest: 2.17.0
+  type-fest: 3.0.0
   update-notifier: 6.0.2
   write-pkg: 5.1.0
 
@@ -5854,6 +5854,11 @@ packages:
   /type-fest/2.17.0:
     resolution: {integrity: sha512-U+g3/JVXnOki1kLSc+xZGPRll3Ah9u2VIG6Sn9iH9YX6UkPERmt6O/0fIyTgsd2/whV0+gAaHAg8fz6sG1QzMA==}
     engines: {node: '>=12.20'}
+
+  /type-fest/3.0.0:
+    resolution: {integrity: sha512-MINvUN5ug9u+0hJDzSZNSnuKXI8M4F5Yvb6SQZ2CYqe7SgKXKOosEcU5R7tRgo85I6eAVBbkVF7TCvB4AUK2xQ==}
+    engines: {node: '>=14.16'}
+    dev: false
 
   /typedarray-to-buffer/3.1.5:
     resolution: {integrity: sha512-zdu8XMNEDepKKR+XYOXAVPtWui0ly0NtohUscw+UmaHiAWT8hrV1rr//H6V+0DvJ3OQ19S979M0laLfX8rm82Q==}
